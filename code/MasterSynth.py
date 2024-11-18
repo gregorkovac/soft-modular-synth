@@ -14,10 +14,10 @@ class MasterSynth:
 
         self.server = Server().boot()
         self.server.start()
-        self.master_out = Mixer(outs=1, chnls=1).out()
+        # self.master_out = Mixer(outs=1, chnls=1).out()
         self.connection_A = None
         self.modules = []
-        self.visualConnections = []
+        self.connections = []
         self.hangingConnection = None
 
     # def on_click(self, event):
@@ -63,6 +63,17 @@ class MasterSynth:
                     clicked_pin = self.modules[i].check_clicks(click_pos)
                     if clicked_pin != None:
                         click_success = True
+
+                        idx = None
+                        for j in range(len(self.connections)):
+                            if self.connections[j][0] == clicked_pin or self.connections[j][1] == clicked_pin:
+                                idx = j
+                                break
+                        
+                        if idx != None:
+                            self.connections[idx][1].disconnect()
+                            self.connections.pop(idx)
+
                         # self.connect(pin = ret[0], mixer = None)
                         if self.hangingConnection == None:
                             self.hangingConnection = clicked_pin
@@ -70,8 +81,8 @@ class MasterSynth:
                         else:
                             # self.visualConnections.append((self.hangingConnection, ret[1]))
                             # TODO: Connect
-                            self.hangingConnection = None
-                            print("Not hanging anymore")
+                            self.connect(clicked_pin)
+                            print("Connected")
                         break
                 if not click_success:
                     self.hangingConnection = None
@@ -82,6 +93,9 @@ class MasterSynth:
 
             for i in range(len(self.modules)):
                 self.modules[i].draw(self.screen)
+
+            for i in range(len(self.connections)):
+                self.draw_connection(self.connections[i][0].pos, self.connections[i][1].pos, self.connections[i][2])
 
             # print(self.hangingConnection)
             if self.hangingConnection != None:
@@ -94,24 +108,19 @@ class MasterSynth:
     def stop(self):
         self.server.stop()
 
-    def connect(self, pin, mixer: Mixer = None):
-        if self.connection_A == None:
-            self.connection_A = (mixer, pin)
+    def connect(self, pin2):
+        if pin2.dir == self.hangingConnection.dir:
             return
-
-        if mixer == None:
-            out_pin = pin
-            in_pin = self.connection_A[1]
-            in_mixer = self.connection_A[0]
+        
+        if pin2.dir == "in":
+            pin_in = pin2
+            pin_out = self.hangingConnection
         else:
-            out_pin = self.connection_A[1]
-            in_pin = pin
-            in_mixer = mixer
+            pin_out = pin2
+            pin_in = self.hangingConnection
 
-        in_mixer.delInput(in_pin)
-        in_mixer.addInput(in_pin, out_pin)
+        self.connections.append((pin_out, pin_in, (235, 192, 52)))
+        
+        pin_in.connect(pin_out)
 
-        # TODO: Replace this
-        in_mixer.setAmp(0, 0, 1)
-
-        self.connection_A = None
+        self.hangingConnection = None

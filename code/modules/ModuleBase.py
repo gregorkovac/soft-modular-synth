@@ -14,6 +14,16 @@ class Pin:
         pygame.draw.circle(surface, MODULE_PIN_COLOR, self.pos, 20)
         pygame.draw.circle(surface, (0, 0, 0), self.pos, 10)
 
+    def connect(self, pin):
+        self.disconnect()
+        self.module.addInput(0, pin.module)
+        self.module.setAmp(0, 0, 1)
+
+        # TODO: Other options. Change fixed pin 0
+    
+    def disconnect(self):
+        self.module.delInput(0)
+
 
 class ModuleBase:
     def __init__(self, pos, size):
@@ -33,7 +43,7 @@ class ModuleBase:
         print(self.name)
         for i in range(len(self.pins)):
             print(f"{pos} vs. {self.pins[i].pos}")
-            if np.abs(pos[0] - self.pins[i].pos[0]) < 100 and np.abs(pos[1] - self.pins[i].pos[1]) < 100:
+            if np.abs(pos[0] - self.pins[i].pos[0]) < 50 and np.abs(pos[1] - self.pins[i].pos[1]) < 50:
                 return self.pins[i]
             
         return None
