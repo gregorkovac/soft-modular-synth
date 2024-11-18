@@ -1,23 +1,95 @@
 from pyo import *
+import pygame
+
 from modules.ModuleBase import ModuleBase
+from modules.VCO import VCO
+from modules.MasterOut import MasterOut
+from misc.pallete import *
 
 class MasterSynth:
     def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((720,720))
+        self.clock = pygame.time.Clock()
+
         self.server = Server().boot()
         self.server.start()
         self.master_out = Mixer(outs=1, chnls=1).out()
         self.connection_A = None
         self.modules = []
+        self.visualConnections = []
+        self.hangingConnection = None
+
+    # def on_click(self, event):
+    #     if event.button is MouseButton.LEFT:
+    #         self.ax.scatter(event.xdata, event.ydata, s=10, color="red")
+    #         plt.draw()
+
+    # def update_graphics(self, n):
+    #     scat, = plt.scatter(0, 0, s = 50, color = "blue")
+    #     return scat, 
+
+    def draw_connection(self, start_pos, end_pos, color):
+        pygame.draw.line(self.screen, color, start_pos, end_pos, width = 10)
+        pygame.draw.circle(self.screen, color, start_pos, 10)
+        pygame.draw.circle(self.screen, color, end_pos, 10)
 
     def start(self):
 
-        m = ModuleBase()
+        self.modules.append(VCO(pos = (100, 100)))
+        self.modules.append(MasterOut(pos = (400, 400)))
+        # m = ModuleBase()
+        # m.draw()
 
-        self.connect(pin = m.outputs[0], mixer = None)
-        self.connect(pin = 0, mixer = self.master_out)
+        # self.connect(pin = m.outputs[0], mixer = None)
+        # self.connect(pin = 0, mixer = self.master_out)
 
         while True:
-            pass
+            ## EVENT HANDLING
+            click = False
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    click = True
+                elif event.type == pygame.QUIT:
+                    pygame.quit()
+                    raise SystemExit
+
+            ## LOGIC
+            if click:
+                click_pos = pygame.mouse.get_pos()
+                print("Click")
+                click_success = False
+                for i in range(len(self.modules)):
+                    clicked_pin = self.modules[i].check_clicks(click_pos)
+                    if clicked_pin != None:
+                        click_success = True
+                        # self.connect(pin = ret[0], mixer = None)
+                        if self.hangingConnection == None:
+                            self.hangingConnection = clicked_pin
+                            print(f"Hanging: {self.hangingConnection}")
+                        else:
+                            # self.visualConnections.append((self.hangingConnection, ret[1]))
+                            # TODO: Connect
+                            self.hangingConnection = None
+                            print("Not hanging anymore")
+                        break
+                if not click_success:
+                    self.hangingConnection = None
+                    print("Not hanging anymore")
+
+            ## VISUALS
+            self.screen.fill(BACKGROUND_COLOR)  
+
+            for i in range(len(self.modules)):
+                self.modules[i].draw(self.screen)
+
+            # print(self.hangingConnection)
+            if self.hangingConnection != None:
+                self.draw_connection(self.hangingConnection.pos, pygame.mouse.get_pos(), color = (235, 192, 52))
+
+
+            pygame.display.flip()
+            self.clock.tick(30)
 
     def stop(self):
         self.server.stop()
