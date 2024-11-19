@@ -9,6 +9,8 @@ from misc.pallete import *
 class MasterSynth:
     def __init__(self):
         pygame.init()
+        pygame.font.init()
+
         self.screen = pygame.display.set_mode((720,720))
         self.clock = pygame.time.Clock()
 
@@ -19,6 +21,7 @@ class MasterSynth:
         self.modules = []
         self.connections = []
         self.hangingConnection = None
+        self.movingModule = None
 
     # def on_click(self, event):
     #     if event.button is MouseButton.LEFT:
@@ -80,13 +83,23 @@ class MasterSynth:
                             print(f"Hanging: {self.hangingConnection}")
                         else:
                             # self.visualConnections.append((self.hangingConnection, ret[1]))
-                            # TODO: Connect
                             self.connect(clicked_pin)
                             print("Connected")
                         break
+
+                    if self.modules[i].check_move(click_pos) and self.movingModule == None:
+                        click_success = True
+                        self.movingModule = (i, self.modules[i].get_relative_pos(click_pos))
+                        print("Clicked on module")
+
                 if not click_success:
                     self.hangingConnection = None
+                    self.movingModule = None
                     print("Not hanging anymore")
+
+            if self.movingModule != None:
+                mouse_pos = pygame.mouse.get_pos()
+                self.modules[self.movingModule[0]].pos = (mouse_pos[0] - self.movingModule[1][0], mouse_pos[1] - self.movingModule[1][1])
 
             ## VISUALS
             self.screen.fill(BACKGROUND_COLOR)  
@@ -95,11 +108,11 @@ class MasterSynth:
                 self.modules[i].draw(self.screen)
 
             for i in range(len(self.connections)):
-                self.draw_connection(self.connections[i][0].pos, self.connections[i][1].pos, self.connections[i][2])
+                self.draw_connection(self.connections[i][0].get_global_pos(), self.connections[i][1].get_global_pos(), self.connections[i][2])
 
             # print(self.hangingConnection)
             if self.hangingConnection != None:
-                self.draw_connection(self.hangingConnection.pos, pygame.mouse.get_pos(), color = (235, 192, 52))
+                self.draw_connection(self.hangingConnection.get_global_pos(), pygame.mouse.get_pos(), color = (235, 192, 52))
 
 
             pygame.display.flip()
