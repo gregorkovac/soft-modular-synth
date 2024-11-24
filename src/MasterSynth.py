@@ -1,9 +1,11 @@
 from pyo import *
 import pygame
+import inspect
 
-from modules.ModuleBase import ModuleBase
+from modules.ModuleBase import ModuleBase, Pin, Potentiometer
 from modules.VCO import VCO
 from modules.MasterOut import MasterOut
+from modules.Mixer import Mix
 from misc.pallete import *
 
 class MasterSynth:
@@ -11,7 +13,7 @@ class MasterSynth:
         pygame.init()
         pygame.font.init()
 
-        self.screen = pygame.display.set_mode((720,720))
+        self.screen = pygame.display.set_mode((1920,1080))
         self.clock = pygame.time.Clock()
 
         self.server = Server().boot()
@@ -22,6 +24,7 @@ class MasterSynth:
         self.connections = []
         self.hangingConnection = None
         self.movingModule = None
+        self.selectedPot = None
 
     # def on_click(self, event):
     #     if event.button is MouseButton.LEFT:
@@ -41,6 +44,7 @@ class MasterSynth:
 
         self.modules.append(VCO(pos = (100, 100)))
         self.modules.append(MasterOut(pos = (400, 400)))
+        self.modules.append(Mix(pos = (100, 500)))
         # m = ModuleBase()
         # m.draw()
 
@@ -53,6 +57,9 @@ class MasterSynth:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     click = True
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_1:
+                        self.modules.append(VCO(pos = pygame.mouse.get_pos()))
                 elif event.type == pygame.QUIT:
                     pygame.quit()
                     raise SystemExit
@@ -64,8 +71,9 @@ class MasterSynth:
                 click_success = False
                 for i in range(len(self.modules)):
                     clicked_pin = self.modules[i].check_clicks(click_pos)
-                    if clicked_pin != None:
+                    if clicked_pin != None and isinstance(clicked_pin, Pin):
                         click_success = True
+                        self.selectedPot = None
 
                         idx = None
                         for j in range(len(self.connections)):
@@ -86,6 +94,14 @@ class MasterSynth:
                             self.connect(clicked_pin)
                             print("Connected")
                         break
+                    elif clicked_pin != None and isinstance(clicked_pin, Potentiometer) and self.selectedPot == None:
+                        click_success = True
+                        self.selectedPot = (clicked_pin, pygame.mouse.get_pos()[1])
+                        break
+                    elif self.selectedPot != None:
+                        click_success = True
+                        self.selectedPot = None
+                        break
 
                     if self.modules[i].check_move(click_pos) and self.movingModule == None:
                         click_success = True
@@ -95,16 +111,22 @@ class MasterSynth:
                 if not click_success:
                     self.hangingConnection = None
                     self.movingModule = None
+                    self.selectedPot = None
                     print("Not hanging anymore")
 
             if self.movingModule != None:
                 mouse_pos = pygame.mouse.get_pos()
                 self.modules[self.movingModule[0]].pos = (mouse_pos[0] - self.movingModule[1][0], mouse_pos[1] - self.movingModule[1][1])
+            
+            if self.selectedPot != None:
+                mouse_pos = pygame.mouse.get_pos()
+                self.selectedPot[0].move(mouse_pos[1],self.selectedPot[1])
 
             ## VISUALS
             self.screen.fill(BACKGROUND_COLOR)  
 
             for i in range(len(self.modules)):
+                self.modules[i].update()
                 self.modules[i].draw(self.screen)
 
             for i in range(len(self.connections)):

@@ -6,7 +6,6 @@ class MasterOut(ModuleBase):
 
         self.module = Mixer(outs=1, chnls=1).out()
         self.pins.append(Pin(self.module, "in", (25, 30), self))
-
         self.name = "Master Out"
 
     def draw(self, surface):
