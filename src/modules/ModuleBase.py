@@ -30,8 +30,6 @@ class Pin:
         self.disconnect()
         self.module.addInput(self.in_channel, pin.module)
         self.module.setAmp(self.in_channel, 0, 1)
-
-        # TODO: Other options. Change fixed pin 0
     
     def disconnect(self):
         self.module.delInput(self.in_channel)
@@ -39,6 +37,31 @@ class Pin:
     def get_global_pos(self):
         return (self.pos[0] + self.parent.pos[0], self.pos[1] + self.parent.pos[1])
     
+class PinModifier(Pin):
+    def __init__(self, module, direction, position, parent, attribute, in_channel = 0):
+        super().__init__(module, direction, position, parent, in_channel)
+        self.attr = attribute
+        self.oldVal = None
+        self.conn = None
+
+    def connect(self, pin):
+        self.oldVal = getattr(self.module, self.attr)
+
+        if self.attr == "mul":
+            pin.module.mul = 1
+            pin.module.add = 0
+        elif self.attr == "freq":
+            pin.module.mul = 100
+            pin.module.add = 0
+            
+
+        setattr(self.module, self.attr, pin.module)
+        self.conn = pin.module
+
+    def disconnect(self):
+        setattr(self.module, self.attr, self.oldVal)
+        self.conn = None
+
 class Potentiometer:
     def __init__(self, position, parent, default_value, min_value = 0, max_value=1):
         self.pos = position
@@ -52,7 +75,7 @@ class Potentiometer:
         pos = self.get_global_pos()
         pygame.draw.circle(surface, MODULE_PIN_COLOR, pos, 30)
 
-        angle = np.interp(self.val, [self.min_val, self.max_val], [0, 2 * np.pi])
+        angle = np.interp(self.val, [self.min_val, self.max_val], [np.pi, 0])
 
         line_length = 20
         end_x = pos[0] + line_length * np.cos(angle)

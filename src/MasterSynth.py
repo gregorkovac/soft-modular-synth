@@ -6,6 +6,7 @@ from modules.ModuleBase import ModuleBase, Pin, Potentiometer
 from modules.VCO import VCO
 from modules.MasterOut import MasterOut
 from modules.Mixer import Mix
+from modules.LFO import LFOModule
 from misc.pallete import *
 
 class MasterSynth:
@@ -13,7 +14,7 @@ class MasterSynth:
         pygame.init()
         pygame.font.init()
 
-        self.screen = pygame.display.set_mode((1920,1080))
+        self.screen = pygame.display.set_mode((1000,1000))
         self.clock = pygame.time.Clock()
 
         self.server = Server().boot()
@@ -42,9 +43,10 @@ class MasterSynth:
 
     def start(self):
 
-        self.modules.append(VCO(pos = (100, 100)))
-        self.modules.append(MasterOut(pos = (400, 400)))
-        self.modules.append(Mix(pos = (100, 500)))
+        # self.modules.append(VCO(pos = (400, 100)))
+        # self.modules.append(LFOModule(pos = (100, 100)))
+        self.modules.append(MasterOut(pos = (500, 500)))
+        # self.modules.append(Mix(pos = (100, 800)))
         # m = ModuleBase()
         # m.draw()
 
@@ -60,6 +62,10 @@ class MasterSynth:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_1:
                         self.modules.append(VCO(pos = pygame.mouse.get_pos()))
+                    elif event.key == pygame.K_2:
+                        self.modules.append(Mix(pos = pygame.mouse.get_pos()))
+                    elif event.key == pygame.K_3:
+                        self.modules.append(LFOModule(pos = pygame.mouse.get_pos()))
                 elif event.type == pygame.QUIT:
                     pygame.quit()
                     raise SystemExit
@@ -155,7 +161,7 @@ class MasterSynth:
             pin_in = self.hangingConnection
 
         self.connections.append((pin_out, pin_in, (235, 192, 52)))
-        
+
         pin_in.connect(pin_out)
 
         self.hangingConnection = None
