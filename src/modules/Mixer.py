@@ -5,12 +5,12 @@ class Mix(ModuleBase):
         super().__init__(pos = pos, size=(200, 340))
 
         self.module = Mixer(outs=1, chnls=4)
-        self.pins.append(Pin(self.module, "in", (25, 80), self, in_channel=0))
-        self.pins.append(Pin(self.module, "in", (25, 150), self, in_channel=1))
-        self.pins.append(Pin(self.module, "in", (25, 220), self, in_channel=2))
-        self.pins.append(Pin(self.module, "in", (25, 290), self, in_channel=3))
+        self.pins.append(Pin("In1", self.module, "in", (25, 80), self, in_channel=0))
+        self.pins.append(Pin("In2", self.module, "in", (25, 150), self, in_channel=1))
+        self.pins.append(Pin("In3", self.module, "in", (25, 220), self, in_channel=2))
+        self.pins.append(Pin("In4", self.module, "in", (25, 290), self, in_channel=3))
 
-        self.pins.append(Pin(self.module[0], "out", (self.size[0] - 25, self.size[1] / 2), self))
+        self.pins.append(Pin("Out", self.module[0], "out", (self.size[0] - 25, self.size[1] / 2), self))
 
         self.potentiometers.append(Potentiometer((80, 80), self, 1, min_value=0, max_value=1))
         self.potentiometers.append(Potentiometer((80, 150), self, 1, min_value=0, max_value=1))
@@ -31,5 +31,5 @@ class Mix(ModuleBase):
         text_surface = self.font.render('MIXER', False, TEXT_COLOR)
         surface.blit(text_surface, (self.pos[0] + 60, self.pos[1] + 15))
 
-        text_surface = self.font.render('Out', False, TEXT_COLOR)
-        surface.blit(text_surface, (self.pos[0] + self.size[0] - 50, self.pos[1] + self.size[1] / 2 + 15))
+        # text_surface = self.font.render('Out', False, TEXT_COLOR)
+        # surface.blit(text_surface, (self.pos[0] + self.size[0] - 50, self.pos[1] + self.size[1] / 2 + 15))

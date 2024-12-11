@@ -14,35 +14,44 @@ def pixels_to_small_float(val):
     return val
 
 class Pin:
-    def __init__(self, module, direction, position, parent, in_channel = 0):
+    def __init__(self, name, module, direction, position, parent, in_channel = 0):
+        self.name = name
         self.module = module
         self.dir = direction
         self.pos = position
         self.parent = parent
         self.in_channel = in_channel
+        self.connected_to = None
 
-    def draw(self, surface):
+    def draw(self, surface, font):
         pos = self.get_global_pos()
         pygame.draw.circle(surface, MODULE_PIN_COLOR, pos, 20)
         pygame.draw.circle(surface, MODULE_PIN_COLOR_INSIDE, pos, 10)
+        text_surface = font.render(self.name, False, TEXT_COLOR)
+        surface.blit(text_surface, (pos[0] - 20, pos[1] + 20))
 
     def connect(self, pin):
         self.disconnect()
         self.module.addInput(self.in_channel, pin.module)
         self.module.setAmp(self.in_channel, 0, 1)
+
+        self.connected_to = pin
     
     def disconnect(self):
-        self.module.delInput(self.in_channel)
+        if self.dir == "in":
+            self.module.delInput(self.in_channel)
+        elif self.dir == "out" and self.connected_to != None:
+            self.connected_to.disconnect()
+            self.connected_to = None
 
     def get_global_pos(self):
         return (self.pos[0] + self.parent.pos[0], self.pos[1] + self.parent.pos[1])
     
 class PinModifier(Pin):
-    def __init__(self, module, direction, position, parent, attribute, in_channel = 0):
-        super().__init__(module, direction, position, parent, in_channel)
+    def __init__(self, name, module, direction, position, parent, attribute, in_channel = 0):
+        super().__init__(name, module, direction, position, parent, in_channel)
         self.attr = attribute
-        self.oldVal = None
-        self.conn = None
+        self.oldVal = getattr(self.module, self.attr)
 
     def connect(self, pin):
         self.oldVal = getattr(self.module, self.attr)
@@ -54,13 +63,15 @@ class PinModifier(Pin):
             pin.module.mul = 100
             pin.module.add = 0
             
-
         setattr(self.module, self.attr, pin.module)
-        self.conn = pin.module
+        self.connected_to = pin
 
-    def disconnect(self):
+    def disconnect(self):   
         setattr(self.module, self.attr, self.oldVal)
-        self.conn = None
+
+        if self.connected_to != None:
+            self.connected_to.disconnect()
+            self.connected_to = None
 
 class Potentiometer:
     def __init__(self, position, parent, default_value, min_value = 0, max_value=1):
@@ -98,12 +109,13 @@ class ModuleBase:
         self.potentiometers = []
         self.name = "Base Module"
         self.font = pygame.font.SysFont('menlo', 24)
+        self.font_small = pygame.font.SysFont('menlo', 20)
         
     def draw(self, surface):
         pygame.draw.rect(surface, MODULE_BASE_COLOR, pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1]))
         
         for i in range(len(self.pins)):
-            self.pins[i].draw(surface)
+            self.pins[i].draw(surface, self.font_small)
 
         for i in range(len(self.potentiometers)):
             self.potentiometers[i].draw(surface)
