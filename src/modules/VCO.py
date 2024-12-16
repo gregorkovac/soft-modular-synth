@@ -9,7 +9,7 @@ class VCO(ModuleBase):
         self.pins.append(PinModifier("Amp", self.osc, "in", (25, 30), self, "mul"))
         self.pins.append(PinModifier("Freq", self.osc, "in", (25, 110), self, "freq"))
 
-        self.potentiometers.append(Potentiometer((self.size[0] / 2, 120), self, 400, min_value=100, max_value=2000))
+        self.potentiometers.append(Potentiometer("Freq", (self.size[0] / 2, 120), self, 400, min_value=100, max_value=2000))
         
         self.name = "VCO"
 

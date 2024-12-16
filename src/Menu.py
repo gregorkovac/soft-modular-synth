@@ -26,7 +26,8 @@ class Menu:
 
         self.buttons = [MenuButton(window_width / 20, self.height * 2/3, (20, self.height / 5), "VCO"),
                         MenuButton(window_width / 20, self.height * 2/3, (120, self.height / 5), "LFO"),
-                        MenuButton(window_width / 10, self.height * 2/3, (220, self.height / 5), "Mixer")]
+                        MenuButton(window_width / 20, self.height * 2/3, (220, self.height / 5), "VCF"),
+                        MenuButton(window_width / 10, self.height * 2/3, (320, self.height / 5), "Mixer")]
 
     def draw(self, surface):
         pygame.draw.rect(surface, MODULE_BASE_COLOR, pygame.Rect(0, 0, self.width, self.height))

@@ -7,6 +7,7 @@ from modules.VCO import VCO
 from modules.MasterOut import MasterOut
 from modules.Mixer import Mix
 from modules.LFO import LFOModule
+from modules.VCF import VCF
 
 from Menu import Menu
 
@@ -25,7 +26,7 @@ class MasterSynth:
         self.server.start()
         # self.master_out = Mixer(outs=1, chnls=1).out()
         self.connection_A = None
-        self.modules = []
+        self.modules = [VCF((100, 100))]
         self.connections = []
         self.hangingConnection = None
         self.movingModule = None
@@ -218,4 +219,7 @@ class MasterSynth:
             self.movingModule = (len(self.modules) - 1, self.modules[len(self.modules) - 1].get_relative_pos(click_pos))
         elif name == "Mixer":
             self.modules.append(Mix(pos = pygame.mouse.get_pos()))
+            self.movingModule = (len(self.modules) - 1, self.modules[len(self.modules) - 1].get_relative_pos(click_pos))
+        elif name == "VCF":
+            self.modules.append(VCF(pos = pygame.mouse.get_pos()))
             self.movingModule = (len(self.modules) - 1, self.modules[len(self.modules) - 1].get_relative_pos(click_pos))

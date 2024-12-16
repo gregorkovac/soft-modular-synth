@@ -31,9 +31,14 @@ class Pin:
         surface.blit(text_surface, (pos[0] - 20, pos[1] + 20))
 
     def connect(self, pin):
-        self.disconnect()
-        self.module.addInput(self.in_channel, pin.module)
-        self.module.setAmp(self.in_channel, 0, 1)
+        if pin.dir == "pass":
+            pin.connect(self)
+        elif self.dir == "pass":
+            self.module.setInput(pin.module)
+        else:
+            self.disconnect()
+            self.module.addInput(self.in_channel, pin.module)
+            self.module.setAmp(self.in_channel, 0, 1)
 
         self.connected_to = pin
     
@@ -43,6 +48,8 @@ class Pin:
         elif self.dir == "out" and self.connected_to != None:
             self.connected_to.disconnect()
             self.connected_to = None
+        elif self.dir == "pass":
+            self.module.setInput(Sine(0, 0))
 
     def get_global_pos(self):
         return (self.pos[0] + self.parent.pos[0], self.pos[1] + self.parent.pos[1])
@@ -51,10 +58,10 @@ class PinModifier(Pin):
     def __init__(self, name, module, direction, position, parent, attribute, in_channel = 0):
         super().__init__(name, module, direction, position, parent, in_channel)
         self.attr = attribute
-        self.oldVal = getattr(self.module, self.attr)
+        self.oldVal = getattr(self.module, self.attr.split("_")[0])
 
     def connect(self, pin):
-        self.oldVal = getattr(self.module, self.attr)
+        self.oldVal = getattr(self.module, self.attr.split("_")[0])
 
         if self.attr == "mul":
             pin.module.mul = 1
@@ -62,19 +69,23 @@ class PinModifier(Pin):
         elif self.attr == "freq":
             pin.module.mul = 100
             pin.module.add = 0
+        elif self.attr == "freq_filt":
+            pin.module.mul = 1000
+            pin.module.add = 400
             
-        setattr(self.module, self.attr, pin.module)
+        setattr(self.module, self.attr.split("_")[0], pin.module)
         self.connected_to = pin
 
     def disconnect(self):   
-        setattr(self.module, self.attr, self.oldVal)
+        setattr(self.module, self.attr.split("_")[0], self.oldVal)
 
         if self.connected_to != None:
             self.connected_to.disconnect()
             self.connected_to = None
 
 class Potentiometer:
-    def __init__(self, position, parent, default_value, min_value = 0, max_value=1):
+    def __init__(self, name, position, parent, default_value, min_value = 0, max_value=1):
+        self.name = name
         self.pos = position
         self.parent = parent
         self.val = default_value
@@ -82,7 +93,7 @@ class Potentiometer:
         self.max_val = max_value
         
 
-    def draw(self, surface):
+    def draw(self, surface, font):
         pos = self.get_global_pos()
         pygame.draw.circle(surface, MODULE_PIN_COLOR, pos, 30)
 
@@ -93,6 +104,9 @@ class Potentiometer:
         end_y = pos[1] + line_length * np.sin(angle)
 
         pygame.draw.line(surface, (1, 1, 1), pos, (end_x, end_y), 2)
+
+        text_surface = font.render(self.name, False, TEXT_COLOR)
+        surface.blit(text_surface, (pos[0] - 20, pos[1] + 25))
 
     def get_global_pos(self):
         return (self.pos[0] + self.parent.pos[0], self.pos[1] + self.parent.pos[1])
@@ -118,7 +132,7 @@ class ModuleBase:
             self.pins[i].draw(surface, self.font_small)
 
         for i in range(len(self.potentiometers)):
-            self.potentiometers[i].draw(surface)
+            self.potentiometers[i].draw(surface, self.font)
 
     def check_clicks(self, pos):
         for i in range(len(self.pins)):

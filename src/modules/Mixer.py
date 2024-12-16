@@ -12,10 +12,10 @@ class Mix(ModuleBase):
 
         self.pins.append(Pin("Out", self.module[0], "out", (self.size[0] - 25, self.size[1] / 2), self))
 
-        self.potentiometers.append(Potentiometer((80, 80), self, 1, min_value=0, max_value=1))
-        self.potentiometers.append(Potentiometer((80, 150), self, 1, min_value=0, max_value=1))
-        self.potentiometers.append(Potentiometer((80, 220), self, 1, min_value=0, max_value=1))
-        self.potentiometers.append(Potentiometer((80, 290), self, 1, min_value=0, max_value=1))
+        self.potentiometers.append(Potentiometer("", (80, 80), self, 1, min_value=0, max_value=1))
+        self.potentiometers.append(Potentiometer("", (80, 150), self, 1, min_value=0, max_value=1))
+        self.potentiometers.append(Potentiometer("", (80, 220), self, 1, min_value=0, max_value=1))
+        self.potentiometers.append(Potentiometer("", (80, 290), self, 1, min_value=0, max_value=1))
 
         self.name = "Mixer"
 
