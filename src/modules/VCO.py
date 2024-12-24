@@ -2,14 +2,14 @@ from modules.ModuleBase import *
 
 class VCO(ModuleBase):
     def __init__(self, pos):
-        super().__init__(pos = pos, size=(200, 250))
+        super().__init__(pos = pos, size=(200, 260))
 
         self.osc = Sine(440, mul = 1)
         self.pins.append(Pin("Out", self.osc, "out", (self.size[0] - 25, 30), self))
         self.pins.append(PinModifier("Amp", self.osc, "in", (25, 30), self, "mul"))
         self.pins.append(PinModifier("Freq", self.osc, "in", (25, 110), self, "freq"))
 
-        self.potentiometers.append(Potentiometer("Freq", (self.size[0] / 2, 120), self, 400, min_value=100, max_value=2000))
+        self.potentiometers.append(Potentiometer("Freq", (self.size[0] / 2, 120), self, 400, min_value=100, max_value=10000))
         
         self.name = "VCO"
 

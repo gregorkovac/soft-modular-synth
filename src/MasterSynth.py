@@ -9,7 +9,7 @@ from modules.Mixer import Mix
 from modules.LFO import LFOModule
 from modules.VCF import VCF
 
-from Menu import Menu
+from Menu import Menu, Tooltip
 
 from misc.pallete import *
 from misc.settings import *
@@ -33,6 +33,7 @@ class MasterSynth:
         self.selectedPot = None
 
         self.menu = Menu(WINDOW_WIDTH, WINDOW_HEIGHT)
+        self.tooltip = Tooltip()
 
     # def on_click(self, event):
     #     if event.button is MouseButton.LEFT:
@@ -175,6 +176,7 @@ class MasterSynth:
             mouse_pos = pygame.mouse.get_pos()
             self.selectedPot[0].move(mouse_pos[1],self.selectedPot[1])
 
+
     def render(self):
         self.screen.fill(BACKGROUND_COLOR)  
 
@@ -186,7 +188,10 @@ class MasterSynth:
             self.draw_connection(self.connections[i][0].get_global_pos(), self.connections[i][1].get_global_pos(), self.connections[i][2])
 
         if self.hangingConnection != None:
-            self.draw_connection(self.hangingConnection.get_global_pos(), pygame.mouse.get_pos(), color = (235, 192, 52))
+            self.draw_connection(self.hangingConnection.get_global_pos(), pygame.mouse.get_pos(), color = CONNECTION_COLOR)
+
+        if self.selectedPot != None:
+            self.tooltip.draw(self.screen, pygame.mouse.get_pos(), self.selectedPot[0].val)
 
         self.menu.draw(self.screen)
 

@@ -91,7 +91,6 @@ class Potentiometer:
         self.val = default_value
         self.min_val = min_value
         self.max_val = max_value
-        
 
     def draw(self, surface, font):
         pos = self.get_global_pos()
