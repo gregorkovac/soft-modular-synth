@@ -56,7 +56,8 @@ class Menu:
         self.buttons = [MenuButton((window_width / 10, self.height), (2 * window_width / 10, 0), "VCO"),
                         MenuButton((window_width / 10, self.height), (3 * window_width / 10, 0), "LFO"),
                         MenuButton((window_width / 10, self.height), (4 * window_width / 10, 0), "VCF"),
-                        MenuButton((window_width / 10, self.height), (5 * window_width / 10, 0), "Mixer")]
+                        MenuButton((window_width / 10, self.height), (5 * window_width / 10, 0), "Mixer"),
+                        MenuButton((window_width / 10, self.height), (6 * window_width / 10, 0), "Sequencer")]
 
     def draw(self, surface):
         """

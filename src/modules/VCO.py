@@ -28,6 +28,8 @@ class VCO(ModuleBase):
 
         if self.pins[2].connected_to == None:
             self.osc.freq = self.potentiometers[0].val
+        elif isinstance(self.pins[2].connected_to.module, CustomConnection):
+            self.osc.freq = self.pins[2].connected_to.module.value
         else:
             self.pins[2].connected_to.module.add = self.potentiometers[0].val
 

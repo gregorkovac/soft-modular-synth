@@ -7,6 +7,7 @@ from modules.MasterOut import MasterOut
 from modules.Mixer import Mix
 from modules.LFO import LFOModule
 from modules.VCF import VCF
+from modules.Sequencer import Sequencer
 
 from Menu import Menu, Tooltip
 
@@ -303,4 +304,7 @@ class MasterSynth:
             self.movingModule = (len(self.modules) - 1, self.modules[len(self.modules) - 1].get_relative_pos(click_pos))
         elif name == "VCF":
             self.modules.append(VCF(pos = pygame.mouse.get_pos()))
+            self.movingModule = (len(self.modules) - 1, self.modules[len(self.modules) - 1].get_relative_pos(click_pos))
+        elif name == "Sequencer":
+            self.modules.append(Sequencer(pos = pygame.mouse.get_pos()))
             self.movingModule = (len(self.modules) - 1, self.modules[len(self.modules) - 1].get_relative_pos(click_pos))

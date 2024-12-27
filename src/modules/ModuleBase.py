@@ -73,6 +73,10 @@ class Pin:
             pin (Pin) - other pin
         """
 
+        # Don't allow the custom connection
+        if isinstance(pin.module, CustomConnection):
+            return
+
         # If the other pin has "pass" direction, connect from that side (due to Pyo specifications)
         if pin.dir == "pass":
             pin.connect(self)
@@ -141,6 +145,14 @@ class PinModifier(Pin):
         args
             pin (Pin) - other pin
         """
+
+        if isinstance(pin.module, CustomConnection):
+            self.connected_to = pin
+            return
+        
+        if isinstance(self.module, CustomConnection):
+            pin.connect(self)
+            return
 
         # Save the old value
         self.oldVal = getattr(self.module, self.attr.split("_")[0])
@@ -214,7 +226,7 @@ class Potentiometer:
         pygame.draw.circle(surface, MODULE_PIN_COLOR, pos, 30)
 
         # Compute the angle
-        angle = np.interp(self.val, [self.min_val, self.max_val], [np.pi, 0])
+        angle = np.interp(self.val, [self.min_val, self.max_val], [0, 3/2 * np.pi]) + 3 / 4 * np.pi
 
         # Draw the line
         line_length = 20
@@ -245,7 +257,61 @@ class Potentiometer:
             zero_val (int) - the pixel value when we first click on the potentiometer
         """
 
-        self.val = float(np.interp(pixels_to_small_float(val - zero_val), [0, 1], [self.min_val, self.max_val]))
+        self.val = float(np.interp(pixels_to_small_float(zero_val - val), [0, 1], [self.min_val, self.max_val]))
+
+class CustomConnection:
+    """
+    CustomConnection serves as a custom connection for when Pyo doesn't provide a connection of some sort
+    """
+
+    def __init__(self, initial_value=0):
+
+        # The internal value of the connection
+        self.value = initial_value
+
+class Indicator:
+    """
+    Indicator LED for showing values
+    """
+
+    def __init__(self, pos, parent, min_val, max_val):
+        self.pos = pos
+        self.parent = parent
+        self.val = min_val
+        self.max_val = max_val
+        self.min_val = min_val
+
+    def draw(self, surface):
+        """
+        draw draws the potentiometer
+
+        args
+            surface (Surface) - the main drawing surface
+            font (Font) - font object for drawing text
+        """
+
+        # Get position
+        pos = self.get_global_pos()
+
+        # Set LED intensity based on value
+        p = np.interp(self.val, [self.min_val, self.max_val], [0, 1])
+        color = (INDICATOR_ON_COLOR[0] * p + INDICATOR_OFF_COLOR[0] * (1 - p),
+                 INDICATOR_ON_COLOR[1] * p + INDICATOR_OFF_COLOR[1] * (1 - p),
+                 INDICATOR_ON_COLOR[2] * p + INDICATOR_OFF_COLOR[2] * (1 - p))
+
+        # Draw the circle
+        pygame.draw.circle(surface, color, pos, 10)
+
+
+    def get_global_pos(self):
+        """
+        get_global_pos returns the pin's global position
+
+        returns
+            (int) - global position relative to the parent module
+        """
+
+        return (self.pos[0] + self.parent.pos[0], self.pos[1] + self.parent.pos[1])
 
 
 class ModuleBase:
@@ -266,6 +332,9 @@ class ModuleBase:
 
         # Potentiometers list
         self.potentiometers = []
+
+        # Indicator list
+        self.indicators = []
 
         # Name
         self.name = "Base Module"
@@ -295,6 +364,10 @@ class ModuleBase:
         for i in range(len(self.potentiometers)):
             self.potentiometers[i].draw(surface, self.font)
 
+        # Draw the indicators
+        for i in range(len(self.indicators)):
+            self.indicators[i].draw(surface)
+
     def check_clicks(self, pos):
         """
         check_clicks checks for clicks on pins and potentiometers
@@ -321,7 +394,7 @@ class ModuleBase:
             pinpos = self.potentiometers[i].get_global_pos()
 
             # Check for clicks inside potentiometer
-            if np.abs(pos[0] - pinpos[0]) < 50 and np.abs(pos[1] - pinpos[1]) < 50:
+            if np.abs(pos[0] - pinpos[0]) < 40 and np.abs(pos[1] - pinpos[1]) < 40:
                 return self.potentiometers[i]
 
         # Return None if no click was found
