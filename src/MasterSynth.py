@@ -245,7 +245,7 @@ class MasterSynth:
 
         # Draw the tooltip
         if self.selected_pot != None:
-            self.tooltip.draw(self.screen, pygame.mouse.get_pos(), self.selected_pot[0].val)
+            self.tooltip.draw(self.screen, pygame.mouse.get_pos(), self.selected_pot[0].get_tooltip_val())
 
         # Draw the menu
         self.menu.draw(self.screen)

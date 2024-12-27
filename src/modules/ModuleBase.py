@@ -191,7 +191,7 @@ class Potentiometer:
     """
     Potentiometer is used for manually controlling parameters
     """
-    def __init__(self, name, position, parent, default_value, min_value = 0, max_value=1):
+    def __init__(self, name, position, parent, default_value, min_value = 0, max_value=1, tooltip_value_map=None):
 
         # Name of the potentiometer
         self.name = name
@@ -210,6 +210,9 @@ class Potentiometer:
 
         # Maximum value
         self.max_val = max_value
+
+        # If we want to display something else on tooltip hover
+        self.tooltip_value_map = tooltip_value_map
 
     def draw(self, surface, font):
         """
@@ -258,6 +261,12 @@ class Potentiometer:
         """
 
         self.val = float(np.interp(pixels_to_small_float(zero_val - val), [0, 1], [self.min_val, self.max_val]))
+
+    def get_tooltip_val(self):
+        if self.tooltip_value_map == None:
+            return str(round(self.val, 1))
+        else:
+            return self.tooltip_value_map(self.val)
 
 class CustomConnection:
     """

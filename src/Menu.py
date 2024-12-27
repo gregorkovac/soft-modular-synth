@@ -113,8 +113,8 @@ class Tooltip:
             val (float) - tooltip value to display
         """
 
-        val = str(round(val, 1))
+        w, h = self.font.size(val)
+        pygame.draw.rect(surface, "black", pygame.Rect(mouse_pos[0] + 10, mouse_pos[1] + 10, w, h + 10))
 
-        pygame.draw.rect(surface, "black", pygame.Rect(mouse_pos[0] + 10, mouse_pos[1] + 10, self.width, self.height))
         text_surface = self.font.render(val, False, "white")
         surface.blit(text_surface, (mouse_pos[0] + 10, mouse_pos[1] + 15))

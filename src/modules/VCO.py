@@ -18,7 +18,7 @@ class VCO(ModuleBase):
 
         # Potentiometer for frequency
         self.potentiometers.append(Potentiometer("Freq", (self.size[0] / 2, 120), self, 400, min_value=100, max_value=10000))
-        
+
         self.name = "VCO"
 
     def update(self):
