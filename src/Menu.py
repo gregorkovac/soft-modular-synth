@@ -5,11 +5,12 @@ class MenuButton:
     """
     MenuButton defines a single button in the meny 
     """
-    def __init__(self, size, pos, text):
+    def __init__(self, size, pos, text, tooltip=""):
         self.size = size
         self.pos = pos
         self.text = text
         self.font = pygame.font.SysFont('menlo', 24)
+        self.tooltip = tooltip
 
     def draw(self, surface):
         """
@@ -17,17 +18,24 @@ class MenuButton:
 
         args
             surface (Surface) - the main drawing surface
+
+        returns
+            (str / None) - return tooltip if we are hovering. Otherwise return None
         """
 
         col = MODULE_BASE_COLOR
+        hover = None
 
         # Check for hover over button and tint the color
         if self.click(pygame.mouse.get_pos()) != "":
             col = (col[0] * 0.9, col[1] * 0.9, col[2] * 0.9)
+            hover = self.tooltip
 
         pygame.draw.rect(surface, col, pygame.Rect(self.pos[0] - 5, self.pos[1] - 5, self.size[0], self.size[1]))
         text_surface = self.font.render(self.text, False, MODULE_PIN_COLOR_INSIDE)
         surface.blit(text_surface, self.pos)
+
+        return hover
 
     def click(self, pos):
         """
@@ -53,11 +61,16 @@ class Menu:
         self.width = window_width
         self.height = int(window_height / 20)
 
-        self.buttons = [MenuButton((window_width / 10, self.height), (2 * window_width / 10, 0), "VCO"),
-                        MenuButton((window_width / 10, self.height), (3 * window_width / 10, 0), "LFO"),
-                        MenuButton((window_width / 10, self.height), (4 * window_width / 10, 0), "VCF"),
-                        MenuButton((window_width / 10, self.height), (5 * window_width / 10, 0), "Mixer"),
-                        MenuButton((window_width / 10, self.height), (6 * window_width / 10, 0), "Sequencer")]
+        self.buttons = [MenuButton((window_width / 10, self.height), (2 * window_width / 10, 0), "VCO",
+                                   tooltip="I create sound"),
+                        MenuButton((window_width / 10, self.height), (3 * window_width / 10, 0), "LFO",
+                                   tooltip="I modulate parameters"),
+                        MenuButton((window_width / 10, self.height), (4 * window_width / 10, 0), "VCF",
+                                   tooltip="I soften sound"),
+                        MenuButton((window_width / 10, self.height), (5 * window_width / 10, 0), "Mixer",
+                                   tooltip="I combine sounds together"),
+                        MenuButton((window_width / 10, self.height), (6 * window_width / 10, 0), "Sequencer",
+                                   tooltip="I make melodies")]
 
     def draw(self, surface):
         """
@@ -65,16 +78,25 @@ class Menu:
 
         args
             surface (Surface) - the main drawing surface
+
+        returns
+            (str / None) - returns tooltip of a button we are hovering over or None
         """
+
+        tooltip = None
 
         pygame.draw.rect(surface, MODULE_BASE_COLOR, pygame.Rect(0, 0, self.width, self.height))
 
         # Draw all buttons
         for i in range(len(self.buttons)):
-            self.buttons[i].draw(surface)
+            tt = self.buttons[i].draw(surface)
+            if tt != None:
+                tooltip = tt
 
         text_surface = self.font.render("Add module:", False, MODULE_PIN_COLOR_INSIDE)
         surface.blit(text_surface, (0, 0))
+
+        return tooltip
 
     def click(self, click_pos):
         """

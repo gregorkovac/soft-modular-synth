@@ -73,7 +73,7 @@ class MasterSynth:
         """
 
         # Add master output to the list of modules
-        self.modules.append(MasterOut(pos = (500, 500)))
+        self.modules.append(MasterOut(pos = (WINDOW_WIDTH - 320, 100)))
 
         # Main loop
         while True:
@@ -177,7 +177,10 @@ class MasterSynth:
                         self.hangingConnection = clicked_obj
                     else:
                         # Connect
-                        self.connect(clicked_obj)
+                        try:
+                            self.connect(clicked_obj)
+                        except:
+                            self.hangingConnection = None
                     break
                 # If we click on a potentiometer
                 elif clicked_obj != None and isinstance(clicked_obj, Potentiometer) and self.selected_pot == None:
@@ -235,6 +238,12 @@ class MasterSynth:
             self.modules[i].update()
             self.modules[i].draw(self.screen)
 
+            if self.selected_pot == None:
+                # Draw hover tooltip
+                h = self.modules[i].check_hover(pygame.mouse.get_pos())
+                if h != None:
+                    self.tooltip.draw(self.screen, pygame.mouse.get_pos(), h)
+
         # Draw connections
         for i in range(len(self.connections)):
             self.draw_connection(self.connections[i][0].get_global_pos(), self.connections[i][1].get_global_pos(), self.connections[i][2])
@@ -248,7 +257,11 @@ class MasterSynth:
             self.tooltip.draw(self.screen, pygame.mouse.get_pos(), self.selected_pot[0].get_tooltip_val())
 
         # Draw the menu
-        self.menu.draw(self.screen)
+        h = self.menu.draw(self.screen)
+        if h != None:
+            self.tooltip.draw(self.screen, pygame.mouse.get_pos(), h)
+
+        self.tooltip.draw(self.screen, (10, WINDOW_HEIGHT - 200), "Interact with buttons, pins, potentiometers by clicking/double clicking. Connect pins. Have fun!")
 
     def stop(self):
         """

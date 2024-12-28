@@ -10,20 +10,23 @@ class Mix(ModuleBase):
         self.module = Mixer(outs=2, chnls=4)
 
         # Four input pins
-        self.pins.append(Pin("In1", self.module, "in", (25, 80), self, in_channel=0))
-        self.pins.append(Pin("In2", self.module, "in", (25, 150), self, in_channel=1))
-        self.pins.append(Pin("In3", self.module, "in", (25, 220), self, in_channel=2))
-        self.pins.append(Pin("In4", self.module, "in", (25, 290), self, in_channel=3))
+        tt = "I take in a signal"
+        self.pins.append(Pin("In1", self.module, "in", (25, 80), self, in_channel=0, tooltip=tt))
+        self.pins.append(Pin("In2", self.module, "in", (25, 150), self, in_channel=1, tooltip=tt))
+        self.pins.append(Pin("In3", self.module, "in", (25, 220), self, in_channel=2, tooltip=tt))
+        self.pins.append(Pin("In4", self.module, "in", (25, 290), self, in_channel=3, tooltip=tt))
 
         # Two output pins
-        self.pins.append(Pin("Out", self.module[0], "out", (self.size[0] - 25, self.size[1] / 3), self))
-        self.pins.append(Pin("Out", self.module[1], "out", (self.size[0] - 25, 2 * self.size[1] / 3), self))
+        tt = "I output a mix of the input signals"
+        self.pins.append(Pin("Out", self.module[0], "out", (self.size[0] - 25, self.size[1] / 3), self, tooltip=tt))
+        self.pins.append(Pin("Out", self.module[1], "out", (self.size[0] - 25, 2 * self.size[1] / 3), self, tooltip=tt))
 
         # Four potentiometers
-        self.potentiometers.append(Potentiometer("", (80, 80), self, 1, min_value=0, max_value=1))
-        self.potentiometers.append(Potentiometer("", (80, 150), self, 1, min_value=0, max_value=1))
-        self.potentiometers.append(Potentiometer("", (80, 220), self, 1, min_value=0, max_value=1))
-        self.potentiometers.append(Potentiometer("", (80, 290), self, 1, min_value=0, max_value=1))
+        tt = "I control the volume of the input signal to the left of me"
+        self.potentiometers.append(Potentiometer("", (80, 80), self, 1, min_value=0, max_value=1, tooltip=tt))
+        self.potentiometers.append(Potentiometer("", (80, 150), self, 1, min_value=0, max_value=1, tooltip=tt))
+        self.potentiometers.append(Potentiometer("", (80, 220), self, 1, min_value=0, max_value=1, tooltip=tt))
+        self.potentiometers.append(Potentiometer("", (80, 290), self, 1, min_value=0, max_value=1, tooltip=tt))
 
         self.name = "Mixer"
 

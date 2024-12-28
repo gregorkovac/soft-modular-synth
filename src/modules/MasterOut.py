@@ -11,7 +11,8 @@ class MasterOut(ModuleBase):
         self.module = Mixer(outs=1, chnls=2).out()
 
         # The master output has one input pin
-        self.pins.append(Pin("In", self.module, "in", (25, 30), self))
+        self.pins.append(Pin("In", self.module, "in", (25, 30), self,
+                             tooltip="I send sound to speakers"))
 
         self.name = "Master Out"
         self.mags = []

@@ -27,7 +27,7 @@ class Pin:
     """
     Pin is a class used for all module pins
     """
-    def __init__(self, name, module, direction, position, parent, in_channel = 0):
+    def __init__(self, name, module, direction, position, parent, in_channel = 0, tooltip = ""):
         # Name of the pin
         self.name = name
 
@@ -49,6 +49,9 @@ class Pin:
 
         # Another pin that it is connected to
         self.connected_to = None
+
+        # Hover tooltip
+        self.tooltip = tooltip
 
     def draw(self, surface, font):
         """
@@ -129,8 +132,8 @@ class PinModifier(Pin):
     PinModifier is a child class of Pin that is used for modifying attributes
     """
 
-    def __init__(self, name, module, direction, position, parent, attribute, in_channel = 0):
-        super().__init__(name, module, direction, position, parent, in_channel)
+    def __init__(self, name, module, direction, position, parent, attribute, in_channel = 0, tooltip = ""):
+        super().__init__(name, module, direction, position, parent, in_channel, tooltip=tooltip)
 
         # The module attribute we are modifying
         self.attr = attribute
@@ -191,7 +194,7 @@ class Potentiometer:
     """
     Potentiometer is used for manually controlling parameters
     """
-    def __init__(self, name, position, parent, default_value, min_value = 0, max_value=1, tooltip_value_map=None):
+    def __init__(self, name, position, parent, default_value, min_value = 0, max_value=1, tooltip_value_map=None, tooltip=""):
 
         # Name of the potentiometer
         self.name = name
@@ -213,6 +216,9 @@ class Potentiometer:
 
         # If we want to display something else on tooltip hover
         self.tooltip_value_map = tooltip_value_map
+
+        # Hover tooltip
+        self.tooltip = tooltip
 
     def draw(self, surface, font):
         """
@@ -440,4 +446,25 @@ class ModuleBase:
         update is a template function for updating module parameters
         """
         pass
+
+    def check_hover(self, pos):
+        # Iterate over pins
+        for i in range(len(self.pins)):
+            # Get pin position
+            pinpos = self.pins[i].get_global_pos()
+
+            # Check for hover inside pin
+            if np.abs(pos[0] - pinpos[0]) < 30 and np.abs(pos[1] - pinpos[1]) < 30:
+                return self.pins[i].tooltip
+            
+        # Iterate over potentiometers
+        for i in range(len(self.potentiometers)):
+            # Get potentiometer position
+            pinpos = self.potentiometers[i].get_global_pos()
+
+            # Check for clicks inside potentiometer
+            if np.abs(pos[0] - pinpos[0]) < 40 and np.abs(pos[1] - pinpos[1]) < 40:
+                return self.potentiometers[i].tooltip
+            
+        return None
 

@@ -20,18 +20,22 @@ class Sequencer(ModuleBase):
         self.freq = CustomConnection()
 
         # One output
-        self.pins.append(Pin("Out", self.freq, "out", (self.size[0] - 25, 30), self))
+        self.pins.append(Pin("Out", self.freq, "out", (self.size[0] - 25, 30), self, 
+                             tooltip="I output a melody. Use me to control the frequency parameter of a VCO."))
 
         # Frequency potentiometers
         for i in range(int(self.seq_len / 2)):
-            self.potentiometers.append(Potentiometer("", (50 + 2 * i * self.size[0] / (self.seq_len + 1), 130), self, 400, min_value=100, max_value=1000))
+            tt = "I control the pitch of the note " + str(i + 1) + " of the melody"
+            self.potentiometers.append(Potentiometer("", (50 + 2 * i * self.size[0] / (self.seq_len + 1), 130), self, 400, min_value=100, max_value=1000, tooltip=tt))
             self.indicators.append(Indicator((50 + 2 * i * self.size[0] / (self.seq_len + 1), 175), self, 0, 1))
 
         for i in range(int(self.seq_len / 2)):
-            self.potentiometers.append(Potentiometer("", (50 + 2 * i * self.size[0] / (self.seq_len + 1), 220), self, 400, min_value=100, max_value=1000))
+            tt = "I control the pitch of the note " + str(i + 5) + " of the melody"
+            self.potentiometers.append(Potentiometer("", (50 + 2 * i * self.size[0] / (self.seq_len + 1), 220), self, 400, min_value=100, max_value=1000, tooltip=tt))
             self.indicators.append(Indicator((50 + 2 * i * self.size[0] / (self.seq_len + 1), 265), self, 0, 1))
 
-        self.potentiometers.append(Potentiometer("BPM", (40, 35), self, 140, min_value=50, max_value=300))
+        self.potentiometers.append(Potentiometer("BPM", (40, 35), self, 140, min_value=50, max_value=300,
+                                                 tooltip="I control the speed of the melody"))
 
         self.name = "Sequencer"
 
