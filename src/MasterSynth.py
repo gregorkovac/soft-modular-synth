@@ -88,7 +88,7 @@ class MasterSynth:
 
             # Tick
             pygame.display.flip()
-            self.clock.tick(30)
+            self.clock.tick(FPS)
 
 
     def handle_input(self):

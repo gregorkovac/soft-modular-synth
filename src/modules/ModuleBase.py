@@ -1,5 +1,4 @@
 from pyo import *
-import matplotlib.pyplot as plt
 import pygame
 from misc.pallete import *
 import numpy as np
