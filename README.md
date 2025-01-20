@@ -25,6 +25,6 @@ You can read more about the project in the report located in `reports/final_repo
 5. Run the project with `python main.py`.
 
 ## Usage tips
-- Interactions with the user interface run purely on single clicks. If single clicks don't work, try to use double clicks. This is a bug I have yet to fix.
+- Interactions with the user interface run purely on single clicks. If single clicks don't work, try to use double clicks.
 - If the window appears too large or too small, you can change the resolution in `src/misc/settings.py`.
 - Likewise, if you run into performance issues, you can change the FPS in the same file.
